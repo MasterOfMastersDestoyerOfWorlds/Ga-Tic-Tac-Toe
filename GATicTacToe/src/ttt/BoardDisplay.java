@@ -16,10 +16,12 @@ public class BoardDisplay extends JFrame {
     private final Board board;
     private final JButton[][] buttons;
     private final boolean loseOnIllegality;
+    boolean xTurn;
 
-    public BoardDisplay(Board board, boolean loseOnIllegality) {
+    public BoardDisplay(Board board, boolean loseOnIllegality, boolean xTurn) {
         this.board = board;
         this.loseOnIllegality = loseOnIllegality;
+        this.xTurn = xTurn;
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 500);
         buttons = new JButton[3][3];
@@ -28,7 +30,7 @@ public class BoardDisplay extends JFrame {
                 for (int x = 0; x < buttons[y].length; x++) {
                     if (buttons[y][x] == e.getSource()) {
                         buttons[y][x].setEnabled(false);
-                        if (board.getXTurn()) {
+                        if (xTurn) {
                             if(board.setCell(Board.CellValue.X, y, x) == -1){
                                 System.out.println("error setting cell value");
                             }
@@ -78,7 +80,7 @@ public class BoardDisplay extends JFrame {
         if(buttons[row][column].isEnabled()){
             buttons[row][column].doClick();
         } else if(loseOnIllegality){
-            if(board.getXTurn()){
+            if(xTurn){
                 displayMessage("player X attempted an illegal move and lost!");
             } else{
                 displayMessage("player X attempted an illegal move and lost!");

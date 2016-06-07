@@ -1,33 +1,31 @@
 package ga;
 
 import java.util.Arrays;
-import ttt.TTTJudge;
 
 /**
  * @author benji
  */
 public class Population {
-    /** The set of problems that Individual objects' genes solve: used in the Individual constructor @see{Individual}*/
-    private final Problem[] data;
     /** A subclass of Allele: used in the Individual constructor @see{Individual}*/
     private final Class<? extends Allele> type;
     /** Array of all the Individual objects composing this Population, sorted by fitness from least to greatest */
     private final Individual[] individuals;
     /** Summation of all the fitness values of the Individual objects in this population */
     private float totalFitness;
+    private final int chromosomeSize;
     /**
-     * @param data
-     * @param type @see{Individual}
+     * @param type
+     * @param chromosomeSize @see{Individual}
      * @param randomPopulation randomizes the solutions of the Individuals in this population for generation 0 @see{Individual}
      * @param size number of individuals to compose this individual
      * @throws ga.AlleleException
      */
-    public Population(Problem[] data, Class<? extends Allele> type, boolean randomPopulation, int size) throws AlleleException {
-        this.data = data;
+    public Population(Class<? extends Allele> type, boolean randomPopulation, int size, int chromosomeSize) throws AlleleException {
         this.type = type;
+        this.chromosomeSize = chromosomeSize;
         individuals = new Individual[size];
         for (int x = 0; x < individuals.length; x++) {
-            individuals[x] = new Individual(data, type, randomPopulation);
+            individuals[x] = new Individual(type, chromosomeSize, randomPopulation);
         }
     }
     
@@ -38,12 +36,12 @@ public class Population {
      */
     public double assignFitnesses(FitnessAssessment fitnessAssessment){
         totalFitness = 0;
-        for(int x = 0; x < individuals.length; x++){
-            for(int i = 0; i < 10; i++){
-                fitnessAssessment.compete(individuals[x], individuals[(int) (Math.random() * individuals.length)]);
+        for (Individual individual : individuals) {
+            for (Individual competitor : individuals) {
+                fitnessAssessment.compete(individual, competitor);
                 //fitnessAssessment.test(individuals[x]);
             }
-            totalFitness += individuals[x].getFitness();
+            totalFitness += individual.getFitness();
         }
         System.out.println(fitnessAssessment.toString());
         Arrays.sort(individuals, Individual.FITNESS_COMPARATOR);
@@ -73,7 +71,7 @@ public class Population {
      * @throws ga.AlleleException
      */
     public Population breedNewGeneration(boolean elitism) throws IndividualException, AlleleException {
-        Population population = new Population(data, type, false, individuals.length);
+        Population population = new Population(type, false, individuals.length, chromosomeSize);
         Individual[] sortedIndividuals = individuals.clone();
         if (elitism) {
             for (int x = 0; x < sortedIndividuals.length; x += 2) {
@@ -124,7 +122,7 @@ public class Population {
         return individuals[0];
     }
     
-    public Allele getBestSolution(Problem datum){
-        return individuals[0].getSolution(datum);
+    public Allele getBestSolution(Hashable hashable){
+        return individuals[0].getSolution(hashable);
     }
 }

@@ -1,5 +1,7 @@
 package ga;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,22 +26,18 @@ public class Individual {
      * by using Arrays.sort(Individual[], Individual.FITNESS_COMPARATOR)
      * Individual.FITNESS_COMPARATOR
      */
-    public static final Comparator<Individual> FITNESS_COMPARATOR = (Individual i1, Individual i2) -> ((Double) i1.fitness).compareTo(i2.fitness);
-
-    public Individual() {
-        chromosome = null;
-    }
+    public static final Comparator<Individual> FITNESS_COMPARATOR = (Individual i1, Individual i2) -> ((Double) i2.fitness).compareTo(i1.fitness);
 
     /**
-     * @param data
      * @param type a subclass of Allele that represents a solution to a single
      * datum in the data parameter
+     * @param chromosomeSize number of genes to be stored in the chromosome
      * @param randomizedSolutions true if the array of alleles of this object
      * should have randomized solutions (for generation 0)
      * @throws ga.AlleleException
      */
-    public Individual(Problem[] data, Class<? extends Allele> type, boolean randomizedSolutions) throws AlleleException {
-        this.chromosome = new Chromosome(data, type, randomizedSolutions);
+    public Individual(Class<? extends Allele> type, int chromosomeSize, boolean randomizedSolutions) throws AlleleException {
+        this.chromosome = new Chromosome(type, chromosomeSize, randomizedSolutions);
     }
 
     /**
@@ -55,12 +53,10 @@ public class Individual {
     public static Individual[] cross(Individual i1, Individual i2) throws IndividualException, AlleleException {
         if (i1.chromosome.genes.length != i2.chromosome.genes.length) {
             throw new IndividualException("chromosome lengths of i1 and i2 are unequal");
-        } else if (i1.chromosome.data != i2.chromosome.data) {
-            throw new IndividualException("i1 data and i2 data are unequal");
         }
         final Individual[] children = new Individual[2];
-        children[0] = new Individual(i1.chromosome.data, i1.chromosome.genes[0].getClass(), false);
-        children[1] = new Individual(i1.chromosome.data, i1.chromosome.genes[0].getClass(), false);
+        children[0] = new Individual(i1.chromosome.genes[0].getClass(), i1.chromosome.genes.length, false);
+        children[1] = new Individual(i1.chromosome.genes[0].getClass(), i1.chromosome.genes.length, false);
         Allele[][] childrenSolutions = new Allele[2][i1.chromosome.genes.length];
         final int chiasma = (int) (Math.random() * i1.chromosome.genes.length);
         for (int x = 0; x < i1.chromosome.genes.length; x++) {
@@ -78,31 +74,31 @@ public class Individual {
         return children;
     }
 
-    public void save(File file, Class<? extends Problem> problemClass, Class<? extends Allele> alleleClass) throws IOException {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter(problemClass, new ProblemTypeAdapter());
-        gsonBuilder.registerTypeAdapter(alleleClass, new AlleleTypeAdapter());
-        Gson gson = gsonBuilder.create();
-        String json = gson.toJson(this);
+    public void save(File file, Class<? extends Allele> alleleClass) throws IOException {
+//        GsonBuilder gsonBuilder = new GsonBuilder();
+//        gsonBuilder.registerTypeAdapter(problemClass, new ProblemTypeAdapter());
+//        gsonBuilder.registerTypeAdapter(alleleClass, new AlleleTypeAdapter());
+//        Gson gson = gsonBuilder.create();
+//        String json = gson.toJson(this);
+          String json = new Gson().toJson(this);
         try (FileWriter fileWriter = new FileWriter(file)) {
             fileWriter.write(json);
             fileWriter.flush();
         }
     }
 
-    public static Individual getIndividualFromFile(File file, Class<? extends Problem> problemClass, Class<? extends Allele> alleleClass) throws FileNotFoundException, IOException {
+    public static Individual getIndividualFromFile(File file, Class<? extends Allele> alleleClass) throws FileNotFoundException, IOException {
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(file))) {
             String json = bufferedReader.readLine();
             GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(problemClass, new ProblemTypeAdapter());
             gsonBuilder.registerTypeAdapter(alleleClass, new AlleleTypeAdapter());
             Gson gson = gsonBuilder.create();
             return gson.fromJson(json, Individual.class);
         }
     }
 
-    public Allele getSolution(Problem datum) {
-        return chromosome.getSolution(datum);
+    public Allele getSolution(Hashable hashable) {
+        return chromosome.getSolution(hashable);
     }
 
     public void setFitness(double fitness) {
@@ -113,21 +109,15 @@ public class Individual {
         return fitness;
     }
 
-    private class Chromosome {
-
-        /**
-         * objects to represent situations a solution corresponds to
-         */
-        private final Problem[] data;
+    public class Chromosome {
         /**
          * solutions to the problems represented in the @code{data} objects
          */
         private Allele[] genes;
 
-        public Chromosome(Problem[] data, Class<? extends Allele> type, boolean randomizedGenes) throws AlleleException {
+        public Chromosome(Class<? extends Allele> type, int chromosomeSize, boolean randomizedGenes) throws AlleleException {
             try {
-                this.data = data;
-                genes = new Allele[data.length];
+                genes = new Allele[chromosomeSize];
                 for (int x = 0; x < genes.length; x++) {
                     genes[x] = (Allele) type.newInstance();
                     if (randomizedGenes) {
@@ -147,13 +137,8 @@ public class Individual {
          * correspond to their respective datum based on index of the
          * @code{gene} array and @code{data} array.
          */
-        public Allele getSolution(Problem datum) {
-            for (int x = 0; x < data.length; x++) {
-                if (data[x].equalsProblem(datum)) {
-                    return genes[x];
-                }
-            }
-            return null;
+        public Allele getSolution(Hashable hashable) throws java.lang.ArrayIndexOutOfBoundsException{
+            return genes[hashable.hash()];
         }
 
         public void setSolutions(Allele[] genes) {

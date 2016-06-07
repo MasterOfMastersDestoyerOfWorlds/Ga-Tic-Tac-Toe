@@ -1,18 +1,19 @@
 package ttt;
 
-import ga.Problem;
-import java.util.ArrayList;
+import ga.Hashable;
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
+//import java.util.ArrayList;
+//import java.util.Arrays;
+//import java.util.Iterator;
+//import java.util.List;
 
 /**
  * @author benji
  */
-public class Board extends Problem {
+public class Board implements Hashable {
 
     public final int[][] cells;
-    private boolean xTurn;
+//    private boolean xTurn;
     final int winConditions[][] = new int[][]{
         /*Horizontal Wins*/
         {0, 1, 2},
@@ -28,18 +29,17 @@ public class Board extends Problem {
     };
 
     @Override
-    public boolean equalsProblem(Problem board) {
-        if (board instanceof Board) {
-            for (int y = 0; y < cells.length; y++) {
-                for (int x = 0; x < cells[y].length; x++) {
-                    if (cells[y][x] != ((Board) board).cells[y][x]) {
-                        return false;
-                    }
-                }
+    public int hash() {
+        int hash = 0;
+        for(int x = 0; x < 9; x++){
+            int cellValue = getCell(x);
+            if(cellValue == CellValue.O.getValue()){
+                hash += Math.pow(2, x);
+            } else if(cellValue == CellValue.X.getValue()){
+                hash += Math.pow(2, x + 9);
             }
-            return true;
         }
-        return false;
+        return hash;
     }
 
     public enum CellValue {
@@ -62,8 +62,8 @@ public class Board extends Problem {
     }
 
     public Board invert() {
-        Board invertedBoard = new Board(-1);
-        invertedBoard.xTurn = !xTurn;
+        Board invertedBoard = new Board();
+//        invertedBoard.xTurn = !xTurn;
         for (int y = 0; y < invertedBoard.cells.length; y++) {
             for (int x = 0; x < invertedBoard.cells[y].length; x++) {
                 if (cells[y][x] == CellValue.X.getValue()) {
@@ -75,77 +75,78 @@ public class Board extends Problem {
         }
         return invertedBoard;
     }
-    
-    public Problem[] getAllProblemsWithoutWinners(int thoroughness, boolean repeats) {
-        List<Problem> problems = Arrays.asList(getAllProblems(thoroughness, repeats));
-        Iterator<Problem> iterator = problems.iterator();
-        while(iterator.hasNext()){
-            Board problem = (Board) iterator.next();
-            if(!problem.hasWinner(false)){
-                iterator.remove();
-            }
-        }
-        return (Problem[]) problems.toArray(new Problem[0]);
-    }
-
-    @Override
-    public Problem[] getAllProblems(int thoroughness, boolean repeats) {
-        if (repeats) {
-            Board[] boards = new Board[thoroughness];
-            for (int x = 0; x < thoroughness; x++) {
-                boards[x] = Board.getRandomBoard();
-            }
-            return boards;
-        }
-        List<Problem> boards = new ArrayList<>();
-        for (int x = 0; x < thoroughness; x++) {
-            Board board = Board.getRandomBoard();
-            boolean contains = false;
-            for (Problem b : boards) {
-                if (b.equals(board)) {
-                    contains = true;
-                }
-            }
-            if (!contains) {
-                boards.add(board);
-                //System.out.println(board);
-            }
-            if(x % 10000 == 0){
-                System.out.println(x + " - " + boards.size());
-            }
-        }
-        return (Problem[]) boards.toArray(new Problem[0]);
-    }
+//    
+//    public Problem[] getAllProblemsWithoutWinners(int thoroughness, boolean repeats) {
+//        List<Problem> problems = Arrays.asList(getAllProblems(thoroughness, repeats));
+//        Iterator<Problem> iterator = problems.iterator();
+//        while(iterator.hasNext()){
+//            Board problem = (Board) iterator.next();
+//            if(!problem.hasWinner(false)){
+//                iterator.remove();
+//            }
+//        }
+//        return (Problem[]) problems.toArray(new Problem[0]);
+//    }
+//
+//    @Override
+//    public Problem[] getAllProblems(int thoroughness, boolean repeats) {
+//        if (repeats) {
+//            Board[] boards = new Board[thoroughness];
+//            for (int x = 0; x < thoroughness; x++) {
+//                boards[x] = Board.getRandomBoard();
+//            }
+//            return boards;
+//        }
+//        List<Problem> boards = new ArrayList<>();
+//        for (int x = 0; x < thoroughness; x++) {
+//            Board board = Board.getRandomBoard();
+//            boolean contains = false;
+//            for (Problem b : boards) {
+//                if (b.equals(board)) {
+//                    contains = true;
+//                }
+//            }
+//            if (!contains) {
+//                boards.add(board);
+//                //System.out.println(board);
+//            }
+//            if(x % 10000 == 0){
+//                System.out.println(x + " - " + boards.size());
+//            }
+//        }
+//        return (Problem[]) boards.toArray(new Problem[0]);
+//    }
     
     public Board(){
-        this(-1);
+//        this(-1);
+        cells = new int[3][3];
     }
+//
+//    public Board(int xTurn) {
+//        switch (xTurn) {
+//            case 0:
+//                this.xTurn = false;
+//                break;
+//            case 1:
+//                this.xTurn = true;
+//                break;
+//            default:
+//                this.xTurn = Math.random() >= 0.5;
+//                break;
+//        }
+//        cells = new int[3][];
+//        for (int y = 0; y < 3; y++) {
+//            cells[y] = new int[3];
+//        }
+//    }
 
-    public Board(int xTurn) {
-        switch (xTurn) {
-            case 0:
-                this.xTurn = false;
-                break;
-            case 1:
-                this.xTurn = true;
-                break;
-            default:
-                this.xTurn = Math.random() >= 0.5;
-                break;
-        }
-        cells = new int[3][];
-        for (int y = 0; y < 3; y++) {
-            cells[y] = new int[3];
-        }
-    }
-
-    public int setCell(int cell) {
-        if (xTurn) {
-            return setCell(CellValue.X, cell);
-        } else {
-            return setCell(CellValue.O, cell);
-        }
-    }
+//    public int setCell(int cell) {
+//        if (xTurn) {
+//            return setCell(CellValue.X, cell);
+//        } else {
+//            return setCell(CellValue.O, cell);
+//        }
+//    }
 
     public int setCell(CellValue cellValue, int cell) {
         return setCell(cellValue, (int) cell / 3, cell % 3);
@@ -157,7 +158,7 @@ public class Board extends Problem {
                 if (cells[row][column] != CellValue.SPACE.getValue()) {
                     return -2;
                 }
-                xTurn = !xTurn;
+//                xTurn = !xTurn;
                 if (row < cells.length && row >= 0) {
                     if (column < cells[row].length && column >= 0) {
                         int replacedValue = cells[row][column];
@@ -170,39 +171,39 @@ public class Board extends Problem {
         return -1;
     }
 
-    public static Board getRandomBoard() {
-        final int turnsPlayed = (int) (Math.random() * 10);
-        final int xTurns, oTurns;
-        if (Math.random() >= 0.5) {
-            xTurns = (int) Math.ceil((double) turnsPlayed / 2);
-            oTurns = turnsPlayed - xTurns;
-        } else {
-            oTurns = (int) Math.ceil((double) turnsPlayed / 2);
-            xTurns = turnsPlayed - oTurns;
-        }
-        int xRemainder = xTurns;
-        int oRemainder = oTurns;
-        int spaceRemainder = 9 - xTurns - oTurns;
-        Board board = new Board(-1);
-        for (int x = 0; x < 9; x++) {
-            final double xRange = (double) xRemainder / (9 - x);
-            final double oRange = (double) oRemainder / (9 - x) + xRange;
-            final double spaceRange = (double) spaceRemainder / (9 - x + oRange);
-            final double totalRange = xRange + oRange + spaceRange;
-            final double selection = Math.random() * totalRange;
-            if (selection <= xRange) {
-                board.setCell(CellValue.X, x);
-                xRemainder--;
-            } else if (selection <= oRange) {
-                board.setCell(CellValue.O, x);
-                oRemainder--;
-            } else {
-                board.setCell(CellValue.SPACE, x);
-                spaceRemainder--;
-            }
-        }
-        return board;
-    }
+//    public static Board getRandomBoard() {
+//        final int turnsPlayed = (int) (Math.random() * 10);
+//        final int xTurns, oTurns;
+//        if (Math.random() >= 0.5) {
+//            xTurns = (int) Math.ceil((double) turnsPlayed / 2);
+//            oTurns = turnsPlayed - xTurns;
+//        } else {
+//            oTurns = (int) Math.ceil((double) turnsPlayed / 2);
+//            xTurns = turnsPlayed - oTurns;
+//        }
+//        int xRemainder = xTurns;
+//        int oRemainder = oTurns;
+//        int spaceRemainder = 9 - xTurns - oTurns;
+//        Board board = new Board();
+//        for (int x = 0; x < 9; x++) {
+//            final double xRange = (double) xRemainder / (9 - x);
+//            final double oRange = (double) oRemainder / (9 - x) + xRange;
+//            final double spaceRange = (double) spaceRemainder / (9 - x + oRange);
+//            final double totalRange = xRange + oRange + spaceRange;
+//            final double selection = Math.random() * totalRange;
+//            if (selection <= xRange) {
+//                board.setCell(CellValue.X, x);
+//                xRemainder--;
+//            } else if (selection <= oRange) {
+//                board.setCell(CellValue.O, x);
+//                oRemainder--;
+//            } else {
+//                board.setCell(CellValue.SPACE, x);
+//                spaceRemainder--;
+//            }
+//        }
+//        return board;
+//    }
 
     public boolean hasWinner(boolean multiplicity) {
         return getWinner(multiplicity) != CellValue.SPACE.getValue();
@@ -214,9 +215,9 @@ public class Board extends Problem {
 
     public int[][] getWinningCells(boolean multiplicity) {
         int[][] winningCells = new int[2][3];
-        for (int y = 0; y < winningCells.length; y++) {
-            for (int x = 0; x < winningCells[y].length; x++) {
-                winningCells[y][x] = CellValue.SPACE.getValue();
+        for (int[] winningCellsRow : winningCells) {
+            for (int x = 0; x < winningCellsRow.length; x++) {
+                winningCellsRow[x] = CellValue.SPACE.getValue();
             }
         }
         int turnsPlayed = 0;
@@ -272,9 +273,9 @@ public class Board extends Problem {
     }
 
     public void reset() {
-        for (int y = 0; y < cells.length; y++) {
-            for (int x = 0; x < cells[y].length; x++) {
-                cells[y][x] = CellValue.SPACE.getValue();
+        for (int[] row : cells) {
+            for (int x = 0; x < row.length; x++) {
+                row[x] = CellValue.SPACE.getValue();
             }
         }
     }
@@ -298,9 +299,9 @@ public class Board extends Problem {
         return cells;
     }
 
-    public boolean getXTurn() {
-        return xTurn;
-    }
+//    public boolean getXTurn() {
+//        return xTurn;
+//    }
 
     @Override
     public String toString() {

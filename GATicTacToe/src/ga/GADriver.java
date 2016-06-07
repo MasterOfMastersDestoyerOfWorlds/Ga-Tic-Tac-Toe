@@ -13,16 +13,16 @@ public class GADriver {
         try{
             final File file = new File("C:\\Users\\benji\\Desktop\\tttboards.txt");
             final File individualFile = new File("C:\\Users\\benji\\Desktop\\solution.txt");
+            //final Individual fittestIndividual = Individual.getIndividualFromFile(individualFile, Board.class, TTTGene.class);
             Problem[] data = new Board(-1).getProblemsFromFile(file, Board.class);
-            Board board = new Board();
             //Problem[] data = board.getAllProblems(1000000, false);
             //board.save(data, file);
-            Population population = new Population(data, TTTGene.class, true, 1000);
-            TTTJudge judge = new TTTJudge();
-            for(int x = 0; x < 25; x++){
-                System.out.println(population.assignFitnesses(judge));
+            Population population = new Population(data, TTTGene.class, true, 100);
+            final int generations = 20;
+            for(int x = 0; x < generations; x++){
+                System.out.println(population.assignFitnesses(new TTTJudge()));
                 System.out.println("----------------------------\nbreeding generation " + String.valueOf(x +1) + "\n----------------------------");
-                population = population.breedNewGeneration(true);
+                population = population.breedNewGeneration(false);
             }
             population.getFittestIndividual().save(individualFile, Board.class, Allele.class);
         } catch(Exception e){
