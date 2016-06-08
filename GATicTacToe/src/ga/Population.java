@@ -121,8 +121,4 @@ public class Population {
     public Individual getFittestIndividual(){
         return individuals[0];
     }
-    
-    public Allele getBestSolution(Hashable hashable){
-        return individuals[0].getSolution(hashable);
-    }
 }

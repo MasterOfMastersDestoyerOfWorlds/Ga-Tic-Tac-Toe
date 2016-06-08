@@ -69,8 +69,8 @@ public class Individual {
                 childrenSolutions[1][x] = i1.chromosome.genes[x];
             }
         }
-        children[0].chromosome.setSolutions(childrenSolutions[0]);
-        children[1].chromosome.setSolutions(childrenSolutions[1]);
+        children[0].chromosome.setGenes(childrenSolutions[0]);
+        children[1].chromosome.setGenes(childrenSolutions[1]);
         return children;
     }
 
@@ -97,16 +97,16 @@ public class Individual {
         }
     }
 
-    public Allele getSolution(Hashable hashable) {
-        return chromosome.getSolution(hashable);
-    }
-
     public void setFitness(double fitness) {
         this.fitness = fitness;
     }
 
     public double getFitness() {
         return fitness;
+    }
+    
+    public Chromosome getChromosome(){
+        return chromosome;
     }
 
     public class Chromosome {
@@ -129,20 +129,12 @@ public class Individual {
             }
         }
 
-        /**
-         * @param datum the situation to solve
-         * @return the corresponding allele that solves the given situation: the
-         * index of the @param{datum} in the @code{data} array is the same index
-         * of the Allele object in the @code{genes} array. i.e. the alleles
-         * correspond to their respective datum based on index of the
-         * @code{gene} array and @code{data} array.
-         */
-        public Allele getSolution(Hashable hashable) throws java.lang.ArrayIndexOutOfBoundsException{
-            return genes[hashable.hash()];
-        }
-
-        public void setSolutions(Allele[] genes) {
+        public void setGenes(Allele[] genes) {
             this.genes = genes;
+        }
+        
+        public Allele[] getGenes(){
+            return genes;
         }
     }
 }

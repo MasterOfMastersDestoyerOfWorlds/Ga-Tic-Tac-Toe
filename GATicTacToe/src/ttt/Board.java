@@ -1,6 +1,5 @@
 package ttt;
 
-import ga.Hashable;
 import java.util.Arrays;
 //import java.util.ArrayList;
 //import java.util.Arrays;
@@ -10,7 +9,7 @@ import java.util.Arrays;
 /**
  * @author benji
  */
-public class Board implements Hashable {
+public class Board {
 
     public final int[][] cells;
 //    private boolean xTurn;
@@ -28,8 +27,7 @@ public class Board implements Hashable {
         {2, 4, 6}
     };
 
-    @Override
-    public int hash() {
+    public int bitmap() {
         int hash = 0;
         for(int x = 0; x < 9; x++){
             int cellValue = getCell(x);
