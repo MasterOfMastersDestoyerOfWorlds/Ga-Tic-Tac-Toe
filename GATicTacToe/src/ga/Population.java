@@ -31,15 +31,19 @@ public class Population {
     
     /**
      * @param fitnessAssessment used to calculate the fitness of Individual objects
+     * @param testIndividually if true, fitness assessment takes a single individual, else  it takes multiple individuals
      * @return the total fitness of this Population
      * We sort @code{individuals} array is sorted by fitness from least to greatest
      */
-    public double assignFitnesses(FitnessAssessment fitnessAssessment){
+    public double assignFitnesses(FitnessAssessment fitnessAssessment, boolean testIndividually){
         totalFitness = 0;
         for (Individual individual : individuals) {
             for (Individual competitor : individuals) {
-                fitnessAssessment.compete(individual, competitor);
-                //fitnessAssessment.test(individuals[x]);
+                if(testIndividually){
+                    fitnessAssessment.test(individual);
+                } else{
+                    fitnessAssessment.compete(individual, competitor);
+                }
             }
             totalFitness += individual.getFitness();
         }

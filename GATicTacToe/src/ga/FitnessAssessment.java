@@ -9,8 +9,13 @@ package ga;
 public abstract class FitnessAssessment {
     /**
      * @param individual the Individual object to assess for fitness
-     * @return the fitness of the @param{individual}
      */
-    public abstract double test(Individual individual);
-    public abstract void compete(Individual i1, Individual i2);
+    public abstract void test(Individual individual);
+
+    /**
+     * all individuals have their fitnesses set
+     * @param individual
+     * @param competitors
+     */
+    public abstract void compete(Individual individual, Individual... competitors);
 }
